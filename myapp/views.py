@@ -1,10 +1,12 @@
 
 import json
+import traceback
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from myapp.models import User
 from django.views.decorators.csrf import csrf_exempt
-
+from myapp.utils import response
+import datetime as datetime
 # Create your views here.
 
 def hello(request):
@@ -17,6 +19,7 @@ def index(request):
     return render(request, 'index.html')
 
 # 原来是这样子的 
+# redirect进行重定向
 def something(request):
     print(request.GET)
     print(request.POST)
@@ -30,17 +33,17 @@ def login(request):
            username = data.get('username','')
            password = data.get('password','')
            if username==''or password=='':
-               return JsonResponse({'code':-1,'msg':'用户名或密码不能为空'})
+               return response.ResponseError("用户名或密码不能为空")
            userInfo = User.objects.filter(username=username).first()
            if userInfo is None:
-               return JsonResponse({'code':-1,'msg':'用户不存在'})
+               return response.ResponseError('用户不存在')
            if userInfo.password!=password:
-               return JsonResponse({'code':-1,'msg':'密码错误'})
+               return response.ResponseError("密码错误")
            
-           return JsonResponse({'code':0,'msg':'登录成功'})
+           return response.ResponseSuccess(None,"登录成功")
                
-       except:
-           return JsonResponse({'code':-1,'msg':'请求格式错误'})
+       except Exception as e:
+         traceback.print_exc()
 
 @csrf_exempt
 def register(request):
@@ -56,11 +59,13 @@ def register(request):
                 return JsonResponse({'code':-1,'msg':'两次密码输入不一致'})
             if User.objects.filter(username=username).first():
                 return JsonResponse({'code':-1,'msg':'用户已存在'})
-            user = User(username=username,password=password)
+            now =datetime.datetime.now()  
+            user = User(username=username,password=password,created_at=now,updated_at=now)
             user.save()
             return JsonResponse({'code':0,'msg':'注册成功'})
-        except:
-            return JsonResponse({'code':-1,'msg':'请求格式错误'})
+
+        except Exception as e:
+          traceback.print_exc()
 
             
 
