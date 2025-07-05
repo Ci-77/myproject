@@ -25,8 +25,19 @@ SECRET_KEY = 'django-insecure-qzx8v&+sb*1p*n+502df=a(#h+5z_7fkt1hn4v##!pp8j6&d70
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
+
+ALLOWED_HOSTS = []
+# 允许使用代理服务器的请求
+USE_X_FORWARDED_HOST = True
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+# 如果是 HTTPS 代理，确保安全配置
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CORS_ALLOW_CREDENTIALS = True  # 需要配合 django-cors-headers 插件使用
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",  # 你的前端开发服务器地址
+]
 
 # Application definition
 
@@ -37,14 +48,24 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'myapp'
+    'myapp',
+    'corsheaders',
+    'rest_framework',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # 需放在最前面
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
