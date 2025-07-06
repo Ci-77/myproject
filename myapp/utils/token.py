@@ -22,9 +22,13 @@ def generate_token(user_id):
     return token
 
 
-def validate_token(token):
+def validate_token(auth_header):
     try:
-        playload_b64, signature = token.split('.')
+        if auth_header.startswith('Bearer '):
+            clientToken = auth_header[len('Bearer '):]  # 截取真正的token
+        else:
+            clientToken = auth_header 
+        playload_b64, signature = clientToken.split('.')
         playload_json = base64.urlsafe_b64decode(playload_b64).decode('utf-8')
         playload = json.loads(playload_json)
         if playload['exp'] < int(time.time()):
