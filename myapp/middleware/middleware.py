@@ -17,7 +17,7 @@ class TokenAuthMiddleware(MiddlewareMixin):
                 request.data = data
             except Exception:
                 request.data = {}
-        if request.path in ['/api/login', '/api/register']:
+        if request.path in ['/api/myapp/login_module/login', '/api/myapp/login_module/register']:
             return self.get_response(request)
         
         auth_header = request.headers.get('Authorization')

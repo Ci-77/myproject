@@ -32,11 +32,11 @@ def validate_token(auth_header):
         playload_json = base64.urlsafe_b64decode(playload_b64).decode('utf-8')
         playload = json.loads(playload_json)
         if playload['exp'] < int(time.time()):
-            return False
+            return 0
         signature_new = hmac.new(SECRET_KEY.encode('utf-8'), playload_b64.encode('utf-8'), hashlib.sha256).hexdigest()
         if not hmac.compare_digest(signature, signature_new):
-            return False
+            return 0
         return playload['user_id']
     except Exception as e:
         traceback.print_exc()
-        return False
+        return 0
